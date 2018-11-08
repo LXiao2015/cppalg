@@ -1,17 +1,26 @@
 #include <iostream>
 #include "print.h"
+#include <fstream>
 
 using namespace std;
 
 void printChoice() {
+        ofstream Outfile;   //声明一个 ofstream 对象
+        Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
 	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
 		cout << "第 " << i+1 << " 条服务链：" << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
 		cout << "demand：" << Input_Chains[i].demand << endl;
 		cout << "NF：" << Input_Chains[i].node << endl;
 		cout << "single COST: " << Input_Chains[i].fT << endl;
+
+                Outfile << Input_Chains[i].demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			cout << Input_Chains[i].path[step] << " ";
+                        if (Input_Chains[i].path[step] > 0) {
+                            Outfile << Input_Chains[i].path[step] << " ";
+                        }
 		}
+                Outfile << endl;
 		cout << endl;
 	}
 	cout<<endl;
@@ -23,9 +32,15 @@ void printChoice() {
 		cout << "demand：" << Allocated_Chains[c].demand << endl;
 		cout << "NF：" << Allocated_Chains[c].node << endl;
 		cout << "single COST: " << Allocated_Chains[c].fT << endl;
+
+                Outfile << Allocated_Chains[c].demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			cout << Allocated_Chains[c].path[step] << " ";
+			if (Allocated_Chains[c].path[step] > 0) {
+				Outfile << Allocated_Chains[c].path[step] << " ";
+			}
 		}
+		Outfile << endl;
 		cout << endl;
 	}
 }
