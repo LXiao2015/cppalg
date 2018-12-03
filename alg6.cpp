@@ -1,11 +1,16 @@
-#include "global.h"
+//#include "global.h"
 #include "read_chains.h" 
 #include <ctime>
 #include <cmath>
 #include <time.h>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
+
+vector<int> realc;
+int session_num[NUM_OF_NFNODES] = {0};
+vector<vector<int>> session_set(NUM_OF_NFNODES, vector<int>(0));
 
 void swap(int array[], int i, int j) {  
     int temp = array[i];  
@@ -14,7 +19,7 @@ void swap(int array[], int i, int j) {
 }
 
 void sortMaxLeftMemCloud(int cloud[], int n) {
-	for(int i = 0; i < n - 1; i++) {  
+	for(int i = 0; i < n - 1; i++) {
         for(int j = i + 1; j < n; j++) {  
             if(RS[cloud[i]-42][1] < RS[cloud[j]-42][1])  
                 swap(cloud, j, i);  
@@ -282,6 +287,106 @@ void init() {
 	}
 } 
 
+void resetSession(struct CFC Chians[], int i) {
+	Chians[i].service_type = -1;
+	Chians[i].ins = -1;
+	Chians[i].phy = -1;    // 第几个物理特征 
+	Chians[i].node = -1;
+
+	memset(Chians[i].ini_path, 0, MAX_PATH_LENGTH);
+	memset(Chians[i].path, 0, MAX_PATH_LENGTH);
+
+	Chians[i].fT = 0;
+}
+
+double calcLoad(int i) {
+	double load = 0.0;
+	for (int j = 0; j <= 1; ++j) {    // resource type
+		int resourceLoad = 0;
+		for (int k = 0; k <= 2; ++k) {    // VNF type
+			resourceLoad += (node_vnf_demand[i][k] + 1) / node_resource[k][j] * node_resource[k][j];
+		}
+		load = max(load, resourceLoad/RS[i][j]);
+	}
+	return load;
+}
+
+void classifyByLoad() {
+	double load[NUM_OF_NFNODES] = {0};
+	// calculate load for PNF node
+	for (int i = 0; i < session_num[0]; ++i) {
+		load[0] += Allocated_Chains[session_set[0][i]].demand;
+	}
+	load[0] /= CAP;
+	// calculate load for each server node
+	for (int i = 1; i <= NUM_OF_CLOUDS; ++i) {
+		// for (int j = 0; j <= 1; ++j) {    // resource type
+			// int resourceLoad = 0;
+			// for (int k = 0; k <= 2; ++k) {    // VNF type
+				// resourceLoad += node_vnf_count[i][k] * node_resource[k][j];
+			// }
+			// load[i] = max(load[i], resourceLoad/RS[i][j]);
+		// }
+		load[i] = calcLoad(i - 1);
+	}
+	
+	double avgLoad = (load[0]+load[1]+load[2]+load[3]+load[4])/5;
+	
+	// classify
+	for (int i = 0; i < NUM_OF_NFNODES; ++i) {
+		if (load[i] > avgLoad) {
+			if (i == 0) {    // 是PNF
+				// 从大到小排序, 删最后的
+				sort(session_set[i].begin(), session_set[i].end(), greater<int>());
+				int index = 0;
+				while (load[0] > avgLoad) {
+					double newLoad = 0.0;
+					for (int i = 0; i < session_num[0] - 1; ++i) {
+						newLoad += Allocated_Chains[session_set[0][i]].demand;
+					}
+					newLoad /= CAP;
+					if (newLoad > avgLoad) {
+						load[0] = newLoad;
+						index = *(session_set[i].end() - 1);
+						resetSession(Allocated_Chains, index);
+						realc.push_back(index);    // 添加进再分配集合
+						session_set[i].pop_back();    // 从节点上移除
+						session_num[i]--;
+					}
+				}
+			}
+			else {    // 是VNF
+				// 从小到大排序, 删最后的
+				sort(session_set[i].begin(), session_set[i].end());
+				int index = 0;
+				while (load[i] > avgLoad) {
+					// 减去这条流的新load
+					double newLoad = 0.0;
+					index = *(session_set[i].end() - 1);
+					node_vnf_demand[i - 1][Allocated_Chains[index].phy] -= Allocated_Chains[index].demand;
+					newLoad = calcLoad(i - 1);
+					if (newLoad > avgLoad) {
+						load[i] = newLoad;
+						resetSession(Allocated_Chains, index);
+						realc.push_back(index);    // 添加进再分配集合
+						session_set[i].pop_back();    // 从节点上移除
+						session_num[i]--;
+						node_vnf_count[i - 1][Allocated_Chains[index].phy] = node_vnf_demand[i - 1][Allocated_Chains[index].phy] / unit_rps[Allocated_Chains[index].phy];
+					}
+					else {
+						node_vnf_demand[i - 1][Allocated_Chains[index].phy] += Allocated_Chains[index].demand;
+						break;
+					}
+				}
+			}
+		}
+	}
+	for (auto val : realc) {
+		cout << val << endl;
+	}
+}
+
+/*
 void classify() {
 //	cout << "classify" << endl;
 
@@ -308,6 +413,7 @@ void classify() {
 		cout << realc[i] << " ";
 	}
 }
+*/
 
 void update(int i, struct CFC Chains[], int ins, float update_cost) {
 //	printUsage();
@@ -483,7 +589,7 @@ void action() {
 
 int main() {
 //	cout << "Before read..." << endl;
-	read();
+	read(session_num, session_set);
 //	cout << "Read over!" << endl;
 	printRS();
 //	printBW();
@@ -491,6 +597,15 @@ int main() {
     time_t timer = time(NULL);
     time_t start = timer;
 //  printRS();
+
+	totalCost();
+	cout << T << endl;
+//	cout << "Cost is caculated!" << endl;
+
+	// 选择参与此次调整的已分配服务链 
+	classifyByLoad();
+
+	
 	// 将所有新服务链的先选一种初始配置 
 	init();
 //	cout << "Init over!" << endl;
@@ -499,21 +614,12 @@ int main() {
 //	printChoice();
 //	printUsage();
 
-	totalCost();
-	cout << T << endl;
-//	cout << "Cost is caculated!" << endl;
-//	printRS();
-
-//	printBW();
-	// 选择参与此次调整的已分配服务链 
-	classify();
-//	
 	// 策略更新 
-	for(int times = 0; times < 30; ++times) {
-		cout << "times: " << times << endl;
+	for(int times = 0; times < 300; ++times) {
 //		printRS();
 		if((time(NULL) - timer) >= 10) {
 			printf("\nRuntime: %ld ms\n", time(NULL) - start);
+			cout << "times: " << times << endl;
 			cout << T << endl;
 			timer = time(NULL);
 		}

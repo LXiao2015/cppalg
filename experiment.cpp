@@ -3,5 +3,5 @@
 using namespace std;
 string dir = "/home/ubuntu/cppalg/input/";
 
-double multiplier = 1.25;
+double multiplier = 1;
 

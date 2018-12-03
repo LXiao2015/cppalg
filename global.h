@@ -1,6 +1,9 @@
 #pragma once
-using namespace std;
 #include "experiment.h"
+#include <vector>
+
+using namespace std;
+using std::vector;
 
 #define NUM_OF_CHAIN_TYPES 5
 
@@ -86,7 +89,7 @@ struct CFC {
 extern struct CFC Input_Chains[NUM_OF_INPUT_CHAINS];
 extern struct CFC Allocated_Chains[NUM_OF_ALLOCATED_CHAINS];
 
-extern int realc[NUM_OF_ALLOCATED_CHAINS];
+//extern int realc[NUM_OF_ALLOCATED_CHAINS];
 
 // 交换机直连的边缘云(0 代表没有直连的)(index = 节点号 - 28)
 extern int sw_edge[9];
@@ -135,7 +138,7 @@ extern int feature_failure_cost[NUM_OF_CHAIN_TYPES][NUM_OF_FEATURES];
 
 extern double update_msg_cost;
 
-extern int num_of_realc;
+//extern int num_of_realc;
 
 // 拓扑带宽
 extern double h_s;
@@ -164,6 +167,7 @@ extern double prop[NUM_OF_NF];
 extern int from[NUM_OF_PATH], to[NUM_OF_PATH];
 
 
+// extern int session_set[NUM_OF_NFNODES][80];
 
 // 类型 实现方式 与对应的prop
 //0 0

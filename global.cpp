@@ -101,7 +101,7 @@ struct CFC {
 	double fT;
 } Input_Chains[NUM_OF_INPUT_CHAINS], Allocated_Chains[NUM_OF_ALLOCATED_CHAINS]; 
 
-int realc[NUM_OF_ALLOCATED_CHAINS] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+//int realc[NUM_OF_ALLOCATED_CHAINS] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 // 交换机直连的边缘云(0 代表没有直连的)(index = 节点号 - 28)
 int sw_edge[9] = {-1, -1, 42, -1, -1, 43, -1, -1, 44};

@@ -66,7 +66,7 @@ int composite(int path[], bool p_choice[][5][NUM_OF_PATH], int src, int sink) {
 	return node;
 }
 
-void allocated_chains() {
+void allocated_chains(int session_num[], vector<vector<int>>& session_set) {
 	string s;
 	int pair_count = 0, i = 0, c = 0;
 	ifstream infile; 
@@ -220,9 +220,15 @@ void allocated_chains() {
 			// }	
 		// }
 		
+		
 		// 合成路径 
 		// cout << "composite " << c << " start" << endl;
-		Allocated_Chains[c].update[Allocated_Chains[c].ins].unode = composite(Allocated_Chains[c].update[Allocated_Chains[c].ins].upath, p_choice, Allocated_Chains[c].src, Allocated_Chains[c].sink);
+		int service_node = composite(Allocated_Chains[c].update[Allocated_Chains[c].ins].upath, p_choice, Allocated_Chains[c].src, Allocated_Chains[c].sink);
+		Allocated_Chains[c].update[Allocated_Chains[c].ins].unode = service_node;
+		// session_set[service_node - 41][session_num[service_node - 41]] = c;
+		session_set[service_node - 41].push_back(c);
+		session_num[service_node - 41]++;    // 指向下一个空位
+		
 		// cout << "---" << endl;
 		// cout << Allocated_Chains[c].update[Allocated_Chains[c].ins].uphy << endl;
 		updateCapacity(Allocated_Chains, c, Allocated_Chains[c].ins);    // 必须在下一句之前 
@@ -282,7 +288,13 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	infile.close();
 }
 
-void read() {
+void read(int session_num[], vector<vector<int>>& session_set) {
+	
+	// memset(session_num, 0, NUM_OF_NFNODES);
+
+	// for (int i = 0; i < NUM_OF_NFNODES; ++i) {
+		// session_set.push_back(vector<int>());
+	// }
 	
 	// 服务链类型对应的实现方法 
 	memcpy(chain_types[0], Firewall, sizeof(Firewall));
@@ -314,7 +326,7 @@ void read() {
 
 	memset(node_vnf_demand, 0.0, sizeof(node_vnf_demand));
 	
-	allocated_chains();
+	allocated_chains(session_num, session_set);
 //	allocated_paths();
 	
 	input_chains();
