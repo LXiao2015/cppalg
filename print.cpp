@@ -8,9 +8,9 @@ void printChoice() {
         ofstream Outfile;   //声明一个 ofstream 对象
         Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
 	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
-		cout << "第 " << i+1 << " 条服务链：" << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
-		cout << "demand：" << Input_Chains[i].demand << endl;
-		cout << "NF：" << Input_Chains[i].node << endl;
+		cout << "The " << i+1 << " th chain: " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
+		cout << "demand: " << Input_Chains[i].demand << endl;
+		cout << "NF: " << Input_Chains[i].node << endl;
 		cout << "single COST: " << Input_Chains[i].fT << endl;
 
                 Outfile << Input_Chains[i].demand << " ";
@@ -28,9 +28,9 @@ void printChoice() {
 		if(c < 0) {
 			break;
 		}
-		cout << "第 " << c+1 << " 条服务链：" << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
-		cout << "demand：" << Allocated_Chains[c].demand << endl;
-		cout << "NF：" << Allocated_Chains[c].node << endl;
+		cout << "The " << c+1 << " th chain: " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
+		cout << "demand: " << Allocated_Chains[c].demand << endl;
+		cout << "NF: " << Allocated_Chains[c].node << endl;
 		cout << "single COST: " << Allocated_Chains[c].fT << endl;
 
                 Outfile << Allocated_Chains[c].demand << " ";
@@ -65,17 +65,17 @@ void printRS() {
 }
 
 void printUsage() {
-	cout << "node_used：" << endl;
+	cout << "node_used: " << endl;
 	for(int j = 0; j < NUM_OF_NFNODES; ++j) {
 		cout << node_used[j] << " ";
 	}
-	cout << endl << "node_vnf_demand：" << endl;
+	cout << endl << "node_vnf_demand: " << endl;
 	for(int k = 0; k < NUM_OF_CLOUDS; ++k) {
 		for(int j = 0; j < 3; ++j) {
 			cout << node_vnf_demand[k][j] << " ";
 		}
 	}
-	cout << endl << "node_vnf_count：" << endl;
+	cout << endl << "node_vnf_count: " << endl;
 	for(int k = 0; k < NUM_OF_CLOUDS; ++k) {
 		for(int j = 0; j < 3; ++j) {
 			cout << node_vnf_count[k][j] << " ";

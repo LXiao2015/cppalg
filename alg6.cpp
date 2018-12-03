@@ -630,7 +630,7 @@ int main() {
 
 	printChoice();
   
-    printf("\nRuntime: %ld ms\n", time(NULL) - start);
+    printf("\nTotal runtime: %ld ms\n", time(NULL) - start);
 //	printFeature();
 	printUsage();
 	printCost(); 
