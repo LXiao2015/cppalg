@@ -2,7 +2,9 @@
 #include <iostream>
 using namespace std;
 
-int getLength(int seq[], int maxLen) {
+double rs_using_cost[2] = {0.2, 0.0001};
+
+int getLength(int seq[], int maxLen) {    // get path length
 	int l = 0;
 	while(l < maxLen && seq[l] > 0) l++;
 	return l;
@@ -16,7 +18,7 @@ void segment(int p[], int* i) {
 	(*i)++;
 }
 
-float singleCost(int i, struct CFC Chains[], int ins) { 
+float singleCost(int i, struct CFC Chains[], int ins) {    // cost per chain includes cff and cu
 	double cff = 0.0, cu = 0.0;
 //	CF = chain_failure_cost[Input_Chains[i].service_type];
 	for(int j = 0; j < NUM_OF_FEATURES; ++j) {
@@ -69,38 +71,54 @@ float singleCost(int i, struct CFC Chains[], int ins) {
 		}
 	}
 	cu = count * update_msg_cost;
-//	cout << "Changed node num: " << count << endl;
 	
-//	cout << Chains[i].service_type << " " << ins << endl;
-//	cout << "NF: " << Chains[i].node << endl;	
-//	cout << "cff: " << cff << "  cu: " << cu << endl;
+	// cout << Chains[i].service_type << " " << ins << endl;
+	// cout << "NF node: " << Chains[i].node << endl;	
+	// cout << "cff: " << cff << "  cu: " << cu << endl;
+	Chains[i].update[ins].cff = cff;
+	Chains[i].update[ins].cu = cu;
 	return cff + cu;
 }
 
 void totalCost() {
-	double CR = 0.0, CI = 0.0;
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
-		T += Input_Chains[i].fT;
-//		cout << T << endl;
-	}
+	T = 0.0;
+	CF = 0.0;
+	CU = 0.0;
+	CH = 0.0;
+	CI = 0.0;    // cost for hardware and instantiating
 
-	for(int c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
-		T += Allocated_Chains[c].fT;
-//		cout << T << endl;
+	// add (cff + cu)
+	for (int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+		CF += Input_Chains[i].cff;
+		// cout << Input_Chains[i].cu << endl;
+		CU += Input_Chains[i].cu;
 	}
-
-	for(int i = 0; i < NUM_OF_NFNODES; ++i) {
-		CR += (node_used[i] > 0? 1: 0) * node_using_cost[i];
+	// cout << "Cost for Input Chains: " << CF + CU << endl;
+	for (int c = 0; static_cast<unsigned long>(c) < NUM_OF_ALLOCATED_CHAINS; ++c) {
+		CF += Allocated_Chains[c].cff;
+		// cout << Allocated_Chains[c].cu << endl;
+		CU += Allocated_Chains[c].cu;
 	}
-	T += CR;
+	// cout << "CF and CU: " << CF << " " << CU << endl;
+	// add ch
 	
-	for(int i = 0; i < NUM_OF_CLOUDS; ++i) {
-		for(int j = 0; j < 3; ++j) {
-			CI += node_vnf_count[i][j] * node_init_cost;
+	for (int i = 0; i < NUM_OF_CLOUDS; ++i) {
+		for (int j = 0; j <= 1; ++j) {    // resource type
+			for (int k = 0; k <= 2; ++k) {    // VNF type
+				// cout << node_vnf_count[i][k] << "*" << node_resource[k][j] << "*" << rs_using_cost[j] << endl;
+				CH += node_vnf_count[i][k] * node_resource[k][j] * rs_using_cost[j];
+			}
 		}
 	}
-	T += CI;
-	
+	// cout << "Cost for hardwares: " << CH << endl;
+
+	// add ci
+	for (int i = 0; i < NUM_OF_NFNODES; ++i) {    // node running cost
+		CI += node_used[i] > 0? node_using_cost[i]: 0;
+	}
+	// cout << "Cost for running: " << CI << endl;
+
+	T = CF + CU + CH + CI;
 //	printUsage();
 }
 

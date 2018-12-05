@@ -78,7 +78,9 @@ struct Update {
 	int unode = 0;
 	int upath[MAX_PATH_LENGTH] = {0};
 	bool succ = false;
-	double uT;
+	double uT = 0.0;
+	double cff = 0.0;
+	double cu = 0.0;
 };
 
 struct CFC {
@@ -99,6 +101,8 @@ struct CFC {
 //	int update_node = 0;
 //	int update_path[MAX_PATH_LENGTH] = {0};
 	double fT;
+	double cu;
+	double cff;
 } Input_Chains[NUM_OF_INPUT_CHAINS], Allocated_Chains[NUM_OF_ALLOCATED_CHAINS]; 
 
 //int realc[NUM_OF_ALLOCATED_CHAINS] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -311,7 +315,7 @@ double RS[NUM_OF_CLOUDS][2] = {
 	{80.0, 12000.0}
 };
 
-double node_using_cost[NUM_OF_NFNODES] = {0, 0.2, 0.2, 0.2, 0.1};
+double node_using_cost[NUM_OF_NFNODES] = {0.1, 0.2, 0.2, 0.2, 0.1};
 double node_init_cost = 0.4;
 double unit_rps[NUM_OF_NF] = {1000.0, 300.0, 100.0};
 
@@ -325,6 +329,10 @@ double CAP = 15000;
 //float resource_cost_of_node[NUM_OF_NFNODES] = {1, 2, 2, 2, 3};    // 这里需要改
 
 double T = 0.0;
+double CF = 0.0;
+double CU = 0.0;
+double CH = 0.0;
+double CI = 0.0;
 
 double prop[NUM_OF_NF] = {0.9, 0.8, 0.7}; 
 

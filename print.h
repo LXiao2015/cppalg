@@ -12,3 +12,5 @@ void printUsage();
 void printCost();
 
 void printFeature();
+
+void printSession(int session_num[], vector<vector<int>>& session_set);

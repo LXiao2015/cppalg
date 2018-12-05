@@ -100,9 +100,9 @@ void allocated_chains(int session_num[], vector<vector<int>>& session_set) {
 	    Allocated_Chains[c].demand = d[3] * multiplier;    // 在一开始就要乘以系数, 后面就开始扣除资源了 
 	    c++;
 	}
-	for(c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
-		cout<<Allocated_Chains[c].src<<" "<<Allocated_Chains[c].sink<<" "<<Allocated_Chains[c].service_type<<" "<<Allocated_Chains[c].demand<<endl;
-	} 
+	// for(c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
+		// cout<<Allocated_Chains[c].src<<" "<<Allocated_Chains[c].sink<<" "<<Allocated_Chains[c].service_type<<" "<<Allocated_Chains[c].demand<<endl;
+	// } 
 	infile.close();
 	// cout<<"read ALLOCATED chains (src sink type demand) end"<<endl; 
 
@@ -282,6 +282,13 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	    Input_Chains[c].sink = d[1];
 	    Input_Chains[c].service_type = d[2] - 1;
 	    Input_Chains[c].demand = d[3] * multiplier;
+		memset(Input_Chains[c].path, 0, MAX_PATH_LENGTH * 4);
+		memset(Input_Chains[c].ini_path, 0, MAX_PATH_LENGTH * 4);
+
+		Input_Chains[c].fT = singleCost(c, Input_Chains, 0);
+		Input_Chains[c].cff = Input_Chains[c].update[0].cff;
+		Input_Chains[c].cu = Input_Chains[c].update[0].cu;
+
 //	    cout<<Input_Chains[c].src<<" "<<Input_Chains[c].sink<<" "<<Input_Chains[c].service_type<<" "<<Input_Chains[c].demand<<endl;
 	    c++;
     }  

@@ -5,47 +5,49 @@
 using namespace std;
 
 void printChoice() {
-        ofstream Outfile;   //声明一个 ofstream 对象
-        Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
+	// cout << "Print detailed choices: " << endl;
+    ofstream Outfile;   //声明一个 ofstream 对象
+    Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
 	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
-		cout << "The " << i+1 << " th chain: " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
-		cout << "demand: " << Input_Chains[i].demand << endl;
-		cout << "NF: " << Input_Chains[i].node << endl;
-		cout << "single COST: " << Input_Chains[i].fT << endl;
+		// cout << "[ The " << i+1 << " th chain: ] " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
+		// cout << "demand: " << Input_Chains[i].demand << endl;
+		// cout << "NF: " << Input_Chains[i].node << endl;
+		// cout << "single COST: " << Input_Chains[i].fT << endl;
 
-                Outfile << Input_Chains[i].demand << " ";
+        Outfile << Input_Chains[i].demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
-			cout << Input_Chains[i].path[step] << " ";
-                        if (Input_Chains[i].path[step] > 0) {
-                            Outfile << Input_Chains[i].path[step] << " ";
-                        }
+			// cout << Input_Chains[i].path[step] << " ";
+			if (Input_Chains[i].path[step] > 0) {
+				Outfile << Input_Chains[i].path[step] << " ";
+			}
 		}
-                Outfile << endl;
-		cout << endl;
+		Outfile << endl;
+		// cout << endl;
 	}
 	cout<<endl;
 	for(int c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
 		if(c < 0) {
 			break;
 		}
-		cout << "The " << c+1 << " th chain: " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
-		cout << "demand: " << Allocated_Chains[c].demand << endl;
-		cout << "NF: " << Allocated_Chains[c].node << endl;
-		cout << "single COST: " << Allocated_Chains[c].fT << endl;
+		// cout << "[ The " << c+1 << " th chain: ] " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
+		// cout << "demand: " << Allocated_Chains[c].demand << endl;
+		// cout << "NF node: " << Allocated_Chains[c].node << endl;
+		// cout << "single COST: " << Allocated_Chains[c].fT << endl;
 
-                Outfile << Allocated_Chains[c].demand << " ";
+        Outfile << Allocated_Chains[c].demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
-			cout << Allocated_Chains[c].path[step] << " ";
+			// cout << Allocated_Chains[c].path[step] << " ";
 			if (Allocated_Chains[c].path[step] > 0) {
 				Outfile << Allocated_Chains[c].path[step] << " ";
 			}
 		}
 		Outfile << endl;
-		cout << endl;
+		// cout << endl;
 	}
 }
 
 void printBW() {
+	cout << "Print Bandwidth left: " << endl;
 	for(int i = 0; i < NUM_OF_NODES; ++i) {
 		for(int j = 0; j < NUM_OF_NODES; ++j) {
 			cout<<BW[i][j]<<" ";
@@ -55,6 +57,7 @@ void printBW() {
 }
 
 void printRS() {
+	cout << "Print the left resources: " << endl;
 	for(int i = 0; i < NUM_OF_CLOUDS; ++i) {
 		for(int j = 0; j < 2; ++j) {
 			cout<<RS[i][j]<<" ";
@@ -84,38 +87,19 @@ void printUsage() {
 	cout << endl;
 }
 
-void printCost() {
-	double CR = 0.0, CI = 0.0, C = 0.0, cff = 0.0;
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
-		C += Input_Chains[i].fT;
-		for(int j = 0; j < NUM_OF_FEATURES; ++j) {
-			cff += (chain_types[Input_Chains[i].service_type][Input_Chains[i].ins][j] == true)? 0: feature_failure_cost[Input_Chains[i].service_type][j];
+void printSession(int session_num[], vector<vector<int>>& session_set) {
+	cout << "Print sessions of each nfnode: " << endl;
+	for (int i = 0; i < NUM_OF_NFNODES; ++i) {
+		cout << "Node " << i + 41 << " carries " << session_num[i] << " sessions: ";
+		for (int j = 0; j < session_num[i]; ++j) {
+			cout << " " << session_set[i][j];
 		}
+		cout << endl;
 	}
+}
 
-	for(int c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
-		C += Allocated_Chains[c].fT;
-		for(int j = 0; j < NUM_OF_FEATURES; ++j) {
-			cff += (chain_types[Allocated_Chains[c].service_type][Allocated_Chains[c].ins][j] == true)? 0: feature_failure_cost[Allocated_Chains[c].service_type][j];
-		}
-	}
-	
-//	CF = chain_failure_cost[Input_Chains[i].service_type];
-	cout << cff << " + " << C - cff << " + ";
-	
-	for(int i = 0; i < NUM_OF_NFNODES; ++i) {
-		CR += (node_used[i] > 0? 1: 0) * node_using_cost[i];
-	}
-	C += CR;
-	cout << CR << " + ";
-	for(int i = 0; i < NUM_OF_CLOUDS; ++i) {
-		for(int j = 0; j < 3; ++j) {
-			CI += node_vnf_count[i][j] * node_init_cost;
-		}
-	}
-	cout << CI << " = ";
-	C += CI;
-	cout << C << endl;
+void printCost() {
+	cout << "CF(" << CF << ") + CU(" << CU << ") + CH(" << CH << ") + CI(" << CI << ") = " << T << endl;
 } 
 
 void printFeature() {

@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++14 -c -g -O2 -Wall
+CFLAGS = -std=c++11 -c -g -O2 -Wall
 INCLUDES += -I./
 LDFLAGS = -L/usr/local/lib
 

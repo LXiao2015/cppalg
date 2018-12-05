@@ -1,4 +1,6 @@
 #include "update.h"
+#include <iostream>
+
 
 bool checkTraffic(int path[], int upath[], double demand, int phy, int uphy) {    // 已改成双向
 	bool flag = true;
@@ -107,7 +109,7 @@ void updateCapacity(struct CFC Chains[], int i, int ins) {
 	int tmp;
 	int node = Chains[i].node, unode = Chains[i].update[ins].unode;
 	int phy = Chains[i].phy, uphy = Chains[i].update[ins].uphy;
-//	cout << node << " "<< unode << " "<< uphy << " "<< phy << endl;
+	// cout << "Update info (node phy unode uphy): " << node << " "<< phy << " "<< unode << " "<< uphy << endl;
 	
 	if(node == unode && uphy == phy) {
 //		cout << "服务节点和物理特征没变，不需要更新" << endl; 
@@ -122,11 +124,12 @@ void updateCapacity(struct CFC Chains[], int i, int ins) {
 		node_used[node - 41] -= 1;
 		if(node != 41) {	
 			node_vnf_demand[node - 42][phy] -= demand;
+			// cout << "Restore demand: " << demand << endl;
 			tmp = node_vnf_count[node - 42][phy];
 			node_vnf_count[node - 42][phy] = (int)((node_vnf_demand[node - 42][phy] + unit_rps[phy] - 1)/unit_rps[phy]);
 			tmp -= node_vnf_count[node - 42][phy];
 			if(tmp != 0) {
-//				cout << "链" << i << "加上原先的" << tmp << "*" << node_resource[phy][1] << endl;
+				// cout << "The " << i << " th chain adds up " << tmp << " * " << node_resource[phy][1] << " MB memories." << endl;
 				for(int j = 0; j < 2; ++j) {
 					RS[node - 42][j] += node_resource[phy][j] * tmp;
 				}
@@ -139,7 +142,7 @@ void updateCapacity(struct CFC Chains[], int i, int ins) {
 //		cout << "有 unode" << endl;
 		node_used[unode - 41] += 1;
 		if(unode != 41) {    // 功能节点是云节点 
-//			cout << "该节点上该 NF 的 demand 变化：" << node_vnf_demand[unode - 42][uphy] << " ";
+			// cout << "该节点上该 NF 的 demand 变化：" << node_vnf_demand[unode - 42][uphy] << " ";
 			node_vnf_demand[unode - 42][uphy] += demand;
 //			cout << node_vnf_demand[unode - 42][uphy] << endl;
 			tmp = node_vnf_count[unode - 42][uphy];
