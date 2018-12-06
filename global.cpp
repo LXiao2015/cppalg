@@ -74,35 +74,6 @@ int *service_nodes[NUM_OF_NF] = {FW_nodes, IDP_nodes, IDP_nodes};
 
 int count_of_nfnode[NUM_OF_NF] = {5, 4, 4};
 
-// struct Update {
-	// int uphy = -1;
-	// int unode = 0;
-	// int upath[MAX_PATH_LENGTH] = {0};
-	// bool succ = false;
-	// double uT = 0.0;
-	// double cff = 0.0;
-	// double cu = 0.0;
-// };
-
-// struct CFC {
-	// int src;
-	// int sink;
-	// int service_type;
-	// int ins = 0;
-	// int phy = -1;    // 第几个物理特征 
-	// int node = 0;
-
-	// double demand;    // 暂时固定
-	// int ini_path[MAX_PATH_LENGTH] = {0};
-	// int path[MAX_PATH_LENGTH] = {0};    // 最长会有 14 个点
-	
-	// struct Update update[3]; 
-
-	// double fT;
-	// double cu;
-	// double cff;
-// }; // Input_Chains[NUM_OF_INPUT_CHAINS], Allocated_Chains[NUM_OF_ALLOCATED_CHAINS]; 
-
 vector<CFC> Input_Chains;
 vector<CFC> Allocated_Chains;
 

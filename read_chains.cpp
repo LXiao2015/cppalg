@@ -302,6 +302,33 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	infile.close();
 }
 
+/*
+void cmd_input() {
+	cout << "Please input the source node, destination node, type, demand in order ";
+	cout << "(End with #):" << endl;
+	int src, dst, type;
+	double demand;
+	while (cin >> src >> dst >> type >> demand) {
+		if (src == '#') break;
+		CFC newChain;
+		newChain.src = src;
+	    newChain.sink = dst;
+	    newChain.service_type = type;
+	    newChain.demand = demand * multiplier;
+		memset(newChain.path, 0, MAX_PATH_LENGTH * 4);
+		memset(newChain.ini_path, 0, MAX_PATH_LENGTH * 4);
+
+		newChain.fT = singleCost(newChain, 0);
+		newChain.cff = newChain.update[0].cff;
+		newChain.cu = newChain.update[0].cu;
+		
+		Input_Chains.push_back(std::move(newChain));
+		cout << newChain.src << " " << newChain.sink << " " << newChain.service_type << " " << newChain.demand << endl;
+	    
+	}
+}
+*/
+
 void read(int session_num[], vector<vector<int>>& session_set) {
 	
 	// memset(session_num, 0, NUM_OF_NFNODES);

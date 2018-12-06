@@ -4,41 +4,53 @@
 
 using namespace std;
 
+void storePolicy() {
+	ofstream Outfile;   //声明一个 ofstream 对象
+    Outfile.open("/home/ubuntu/cppalg/output/policy.txt");
+	for(CFC c: Allocated_Chains) {
+        Outfile << "<" << c.src << " ," << c.sink << " ," << c.service_type << " ," << c.demand << ">  ";
+		Outfile << c.ins << " " << c.phy << " " << c.node << "  ";
+		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
+			if (c.path[step] > 0) {
+				Outfile << c.path[step] << " ";
+			}
+		}
+		Outfile << endl;
+	}
+}
+
 void printChoice() {
 	// cout << "Print detailed choices: " << endl;
     ofstream Outfile;   //声明一个 ofstream 对象
     Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+	for(CFC c: Input_Chains) {
 		// cout << "[ The " << i+1 << " th chain: ] " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
 		// cout << "demand: " << Input_Chains[i].demand << endl;
 		// cout << "NF: " << Input_Chains[i].node << endl;
 		// cout << "single COST: " << Input_Chains[i].fT << endl;
 
-        Outfile << Input_Chains[i].demand << " ";
+        Outfile << c.demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			// cout << Input_Chains[i].path[step] << " ";
-			if (Input_Chains[i].path[step] > 0) {
-				Outfile << Input_Chains[i].path[step] << " ";
+			if (c.path[step] > 0) {
+				Outfile << c.path[step] << " ";
 			}
 		}
 		Outfile << endl;
 		// cout << endl;
 	}
 	cout<<endl;
-	for(int c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
-		if(c < 0) {
-			break;
-		}
+	for(CFC c: Allocated_Chains) {
 		// cout << "[ The " << c+1 << " th chain: ] " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
 		// cout << "demand: " << Allocated_Chains[c].demand << endl;
 		// cout << "NF node: " << Allocated_Chains[c].node << endl;
 		// cout << "single COST: " << Allocated_Chains[c].fT << endl;
 
-        Outfile << Allocated_Chains[c].demand << " ";
+        Outfile << c.demand << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			// cout << Allocated_Chains[c].path[step] << " ";
-			if (Allocated_Chains[c].path[step] > 0) {
-				Outfile << Allocated_Chains[c].path[step] << " ";
+			if (c.path[step] > 0) {
+				Outfile << c.path[step] << " ";
 			}
 		}
 		Outfile << endl;

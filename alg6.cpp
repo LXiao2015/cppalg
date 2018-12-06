@@ -1,4 +1,3 @@
-
 #include "read_chains.h" 
 #include <ctime>
 #include <cmath>
@@ -653,7 +652,11 @@ int main() {
 	printCost(); 
 	// printBW();
 	printRS();
-		
+	
+	// 合并 Input_Chains 到 Allocated_Chains, 并清空前者
+	Allocated_Chains.insert(Allocated_Chains.end(), Input_Chains.begin(), Input_Chains.end());
+	storePolicy();
+	
 	return 0; 
 
 }

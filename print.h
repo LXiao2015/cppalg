@@ -1,6 +1,8 @@
 #pragma once
 #include "global.h"
 
+void storePolicy();
+
 void printChoice();
 
 void printBW();
