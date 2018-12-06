@@ -93,11 +93,14 @@ void allocated_chains(int session_num[], vector<vector<int>>& session_set) {
 				++pos;  
 	            temp = false;     // 标志位复位  
 	        }  
-	    } 
-	    Allocated_Chains[c].src = d[0];
-	    Allocated_Chains[c].sink = d[1];
-	    Allocated_Chains[c].service_type = d[2] - 1;    // CPLEX 中的类型计数从 1 开始
-	    Allocated_Chains[c].demand = d[3] * multiplier;    // 在一开始就要乘以系数, 后面就开始扣除资源了 
+	    }
+		CFC oldChain;
+	    oldChain.src = d[0];
+	    oldChain.sink = d[1];
+	    oldChain.service_type = d[2] - 1;    // CPLEX 中的类型计数从 1 开始
+	    oldChain.demand = d[3] * multiplier;    // 在一开始就要乘以系数, 后面就开始扣除资源了 
+		
+		Allocated_Chains.push_back(std::move(oldChain));    // 右值引用
 	    c++;
 	}
 	// for(c = 0; c < NUM_OF_ALLOCATED_CHAINS; ++c) {
@@ -245,7 +248,7 @@ void allocated_chains(int session_num[], vector<vector<int>>& session_set) {
 	    memcpy(Allocated_Chains[c].ini_path, Allocated_Chains[c].path, 4 * MAX_PATH_LENGTH);
 	    // cout << "---------" << endl;
 	    
-		Allocated_Chains[c].fT = Allocated_Chains[c].update[Allocated_Chains[c].ins].uT = singleCost(c, Allocated_Chains, Allocated_Chains[c].ins);    // 把这里换一个评估函数 
+		Allocated_Chains[c].fT = Allocated_Chains[c].update[Allocated_Chains[c].ins].uT = singleCost(Allocated_Chains[c], Allocated_Chains[c].ins);    // 把这里换一个评估函数 
 		// cout << "------------" << endl;
 		c++;
 	}
@@ -278,18 +281,22 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	            temp = false;     // 标志位复位  
 	        }  
 	    } 
-	    Input_Chains[c].src = d[0];
-	    Input_Chains[c].sink = d[1];
-	    Input_Chains[c].service_type = d[2] - 1;
-	    Input_Chains[c].demand = d[3] * multiplier;
-		memset(Input_Chains[c].path, 0, MAX_PATH_LENGTH * 4);
-		memset(Input_Chains[c].ini_path, 0, MAX_PATH_LENGTH * 4);
+		cout << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << endl;
+		CFC newChain;
+		
+	    newChain.src = d[0];
+	    newChain.sink = d[1];
+	    newChain.service_type = d[2] - 1;
+	    newChain.demand = d[3] * multiplier;
+		memset(newChain.path, 0, MAX_PATH_LENGTH * 4);
+		memset(newChain.ini_path, 0, MAX_PATH_LENGTH * 4);
 
-		Input_Chains[c].fT = singleCost(c, Input_Chains, 0);
-		Input_Chains[c].cff = Input_Chains[c].update[0].cff;
-		Input_Chains[c].cu = Input_Chains[c].update[0].cu;
-
-//	    cout<<Input_Chains[c].src<<" "<<Input_Chains[c].sink<<" "<<Input_Chains[c].service_type<<" "<<Input_Chains[c].demand<<endl;
+		newChain.fT = singleCost(newChain, 0);
+		newChain.cff = newChain.update[0].cff;
+		newChain.cu = newChain.update[0].cu;
+		
+		Input_Chains.push_back(std::move(newChain));    // 右值引用
+	    // cout<<Input_Chains[c].src<<" "<<Input_Chains[c].sink<<" "<<Input_Chains[c].service_type<<" "<<Input_Chains[c].demand<<endl;
 	    c++;
     }  
 	infile.close();

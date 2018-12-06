@@ -1,5 +1,6 @@
 using namespace std;
 #include "experiment.h"
+#include "global.h"
 
 #define NUM_OF_CHAIN_TYPES 5
 
@@ -15,8 +16,8 @@ using namespace std;
 #define NUM_OF_PATH 94
 
 // 需要用const修饰, 不然error: array bound is not an integer constant before ']' token
-const int NUM_OF_ROUTER = 4;
-const int NUM_OF_NF = 3;
+// const int NUM_OF_ROUTER = 4;
+// const int NUM_OF_NF = 3;
 
 /* 定义（新模型）五种服务链不同实现方式的feature选择 */
 // 交换了 f5, f6 的位置, 与 CPLEX 版相同 
@@ -58,11 +59,11 @@ int num_of_ins[NUM_OF_CHAIN_TYPES] = {3, 2, 2, 3, 2};
 
 /* 定义feature与可选节点对应关系 */
 
-enum phy_feature {
-	f3 = 2, 
-	f5 = 4,
-	f6 = 5
-}; 
+// enum phy_feature {
+	// f3 = 2, 
+	// f5 = 4,
+	// f6 = 5
+// }; 
 
 int phy_feature_set[3] = {f3, f5, f6};
 
@@ -73,37 +74,37 @@ int *service_nodes[NUM_OF_NF] = {FW_nodes, IDP_nodes, IDP_nodes};
 
 int count_of_nfnode[NUM_OF_NF] = {5, 4, 4};
 
-struct Update {
-	int uphy = -1;
-	int unode = 0;
-	int upath[MAX_PATH_LENGTH] = {0};
-	bool succ = false;
-	double uT = 0.0;
-	double cff = 0.0;
-	double cu = 0.0;
-};
+// struct Update {
+	// int uphy = -1;
+	// int unode = 0;
+	// int upath[MAX_PATH_LENGTH] = {0};
+	// bool succ = false;
+	// double uT = 0.0;
+	// double cff = 0.0;
+	// double cu = 0.0;
+// };
 
-struct CFC {
-	int src;
-	int sink;
-	int service_type;
-	int ins = 0;
-	int phy = -1;    // 第几个物理特征 
-	int node = 0;
-//	int ini_node = 0;
-	double demand;    // 暂时固定
-	int ini_path[MAX_PATH_LENGTH] = {0};
-	int path[MAX_PATH_LENGTH] = {0};    // 最长会有 14 个点
+// struct CFC {
+	// int src;
+	// int sink;
+	// int service_type;
+	// int ins = 0;
+	// int phy = -1;    // 第几个物理特征 
+	// int node = 0;
+
+	// double demand;    // 暂时固定
+	// int ini_path[MAX_PATH_LENGTH] = {0};
+	// int path[MAX_PATH_LENGTH] = {0};    // 最长会有 14 个点
 	
-	struct Update update[3]; 
-//	int update_ins = 0;
-//	int update_phy = -1;
-//	int update_node = 0;
-//	int update_path[MAX_PATH_LENGTH] = {0};
-	double fT;
-	double cu;
-	double cff;
-} Input_Chains[NUM_OF_INPUT_CHAINS], Allocated_Chains[NUM_OF_ALLOCATED_CHAINS]; 
+	// struct Update update[3]; 
+
+	// double fT;
+	// double cu;
+	// double cff;
+// }; // Input_Chains[NUM_OF_INPUT_CHAINS], Allocated_Chains[NUM_OF_ALLOCATED_CHAINS]; 
+
+vector<CFC> Input_Chains;
+vector<CFC> Allocated_Chains;
 
 //int realc[NUM_OF_ALLOCATED_CHAINS] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 

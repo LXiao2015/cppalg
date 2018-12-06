@@ -18,40 +18,40 @@ void segment(int p[], int* i) {
 	(*i)++;
 }
 
-float singleCost(int i, struct CFC Chains[], int ins) {    // cost per chain includes cff and cu
+float singleCost(CFC& Chain, int ins) {    // cost per chain includes cff and cu
 	double cff = 0.0, cu = 0.0;
 //	CF = chain_failure_cost[Input_Chains[i].service_type];
 	for(int j = 0; j < NUM_OF_FEATURES; ++j) {
 //		cout << chain_types[Chains[i].service_type][ins][j] << " ";
-		cff += (chain_types[Chains[i].service_type][ins][j] == true)? 0: feature_failure_cost[Chains[i].service_type][j];
+		cff += (chain_types[Chain.service_type][ins][j] == true)? 0: feature_failure_cost[Chain.service_type][j];
 //		cout << cff << endl;
 	}
 //	cout << endl;
 	
 	int count = 0, start1 = 0, end1 = 0, start2 = 0, end2 = 0;
 	bool firstnotsame = 1;
-	if(Chains[i].update[ins].upath[start1] == 0) count = 0;    // upath 无路径, 无更新开销
-	else if(Chains[i].ini_path[start2] == 0) {
-		int l1 = getLength(Chains[i].update[ins].upath, 16);
+	if(Chain.update[ins].upath[start1] == 0) count = 0;    // upath 无路径, 无更新开销
+	else if(Chain.ini_path[start2] == 0) {
+		int l1 = getLength(Chain.update[ins].upath, 16);
 		count = l1 - 1;    // 原先没有路径, 更新节点是 upath 的长度减去 1（汇聚节点）
 	}
 	else {
-		while(Chains[i].update[ins].upath[end1] != 0 && Chains[i].ini_path[end2] != 0) {
-			segment(Chains[i].update[ins].upath, &end1);    // 截到服务节点或汇聚节点的下一个节点 index 
-			segment(Chains[i].ini_path, &end2);
+		while(Chain.update[ins].upath[end1] != 0 && Chain.ini_path[end2] != 0) {
+			segment(Chain.update[ins].upath, &end1);    // 截到服务节点或汇聚节点的下一个节点 index 
+			segment(Chain.ini_path, &end2);
 	//		cout << start1 << " " << end1 << " " << start2 << " " << end2 << endl;
 	//		int l1 = getLength(test1, start1, end1);
 	//		int l2 = getLength(test2, start2, end2);
 			int samepath[16] = {0};
 			int l1 = end1 - start1;
 			int l2 = end2 - start2;
-			int samelength = lcs(Chains[i].update[ins].upath + start1, l1, Chains[i].ini_path + start2, l2, samepath);
+			int samelength = lcs(Chain.update[ins].upath + start1, l1, Chain.ini_path + start2, l2, samepath);
 //			cout << "samelength：" << samelength << endl;
 	
 			int s = samelength - 1;
 			for(int step = start1; step < end1; ++step) {
 //				cout << test1[step] << " ";
-				if(samepath[s] != Chains[i].update[ins].upath[step]) {    // 节点不相等, upath 到下一个节点, 并累加 count 
+				if(samepath[s] != Chain.update[ins].upath[step]) {    // 节点不相等, upath 到下一个节点, 并累加 count 
 					if(firstnotsame) {
 						firstnotsame = 0;
 						count++;
@@ -75,8 +75,8 @@ float singleCost(int i, struct CFC Chains[], int ins) {    // cost per chain inc
 	// cout << Chains[i].service_type << " " << ins << endl;
 	// cout << "NF node: " << Chains[i].node << endl;	
 	// cout << "cff: " << cff << "  cu: " << cu << endl;
-	Chains[i].update[ins].cff = cff;
-	Chains[i].update[ins].cu = cu;
+	Chain.update[ins].cff = cff;
+	Chain.update[ins].cu = cu;
 	return cff + cu;
 }
 
@@ -122,7 +122,7 @@ void totalCost() {
 //	printUsage();
 }
 
-float newCost(struct CFC Chains[], int i, int ins) {
+float newCost(vector<CFC>& Chains, int i, int ins) {
 	int node = Chains[i].node, unode = Chains[i].update[ins].unode;
 	int phy = Chains[i].phy, uphy = Chains[i].update[ins].uphy;
 	if(node == unode && uphy == phy) {

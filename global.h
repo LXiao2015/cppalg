@@ -90,8 +90,11 @@ struct CFC {
 	double cu;
 }; 
 
-extern struct CFC Input_Chains[NUM_OF_INPUT_CHAINS];
-extern struct CFC Allocated_Chains[NUM_OF_ALLOCATED_CHAINS];
+extern vector<CFC> Input_Chains;
+extern vector<CFC> Allocated_Chains;
+
+// extern struct CFC Input_Chains[NUM_OF_INPUT_CHAINS];
+// extern struct CFC Allocated_Chains[NUM_OF_ALLOCATED_CHAINS];
 
 //extern int realc[NUM_OF_ALLOCATED_CHAINS];
 

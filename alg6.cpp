@@ -30,7 +30,7 @@ void sortMaxLeftMemCloud(int cloud[], int n) {    // 按内存从大到小排序
 //    }
 }
 
-void chooseNode(int i, bool *nf_done, struct CFC Chains[], int type, int ins) {
+void chooseNode(int i, bool *nf_done, vector<CFC>& Chains, int type, int ins) {
 	Chains[i].update[ins].succ = true;
 //	cout << "The " << i+1 << "th chain: " << type << " " << Chains[i].ins << " " << ins << endl; 
 
@@ -66,7 +66,7 @@ void chooseNode(int i, bool *nf_done, struct CFC Chains[], int type, int ins) {
 	}
 }
 
-void choosePath(int i, bool *nf_done, struct CFC Chains[], int ins) {
+void choosePath(int i, bool *nf_done, vector<CFC>& Chains, int ins) {
 	
 //	cout << *nf_done << " " << Chains[i].update[ins].unode << endl; 
 
@@ -191,7 +191,7 @@ void choosePath(int i, bool *nf_done, struct CFC Chains[], int ins) {
 //	cout << endl;
 }
 
-void chooseLargestNode(int i, bool *nf_done, struct CFC Chains[], int type, int ins) {
+void chooseLargestNode(int i, bool *nf_done, vector<CFC>& Chains, int type, int ins) {
 	Chains[i].update[ins].succ = true;
 //	cout << "The " << i+1 << "th chain: " << type << " " << Chains[i].ins << " " << ins << endl; 
 
@@ -246,13 +246,14 @@ void chooseLargestNode(int i, bool *nf_done, struct CFC Chains[], int type, int 
 	}
 }
 
-void initPerChain(struct CFC Chains[], int i, int offset) {
+void initPerChain(vector<CFC>& Chains, int i, int offset) {
+
 	bool nf_done = true;    // NF 是否已经过(或根本没有 NF) 
-	
+
 	int type = Chains[i].service_type;    // 五种服务链中的哪一种
+
 	int ins = rand()%num_of_ins[type];    // 选择一种实现方式(考虑服务链分配失败)
-//		Input_Chains[i].ins = ins;
-//		cout << "[Input Chain] init - " << i << endl;
+
 	if(ins != 0) {
 		// 先随机选，失败则选一个剩余最大的 
 		chooseNode(i, &nf_done, Chains, type, ins);   // 失败后恢复 
@@ -265,6 +266,7 @@ void initPerChain(struct CFC Chains[], int i, int offset) {
 		}	
 		if(Chains[i].update[ins].succ != false) {
 			// 扣除资源和带宽 
+			// cout << "Try updating..." << endl;
 			updateTraffic(Chains[i].path, Chains[i].update[ins].upath, Chains[i].demand, Chains[i].phy, Chains[i].update[ins].uphy);
 			updateCapacity(Chains, i, ins);
 			memcpy(Chains[i].path, Chains[i].update[ins].upath, 4*MAX_PATH_LENGTH);
@@ -272,16 +274,17 @@ void initPerChain(struct CFC Chains[], int i, int offset) {
 			Chains[i].ins = ins;
 			Chains[i].phy = Chains[i].update[ins].uphy;
 			Chains[i].node = Chains[i].update[ins].unode;
+			// cout << "Updating succeed..." << endl;
 		}
 	}
 
 	if(Chains[i].update[ins].succ != false) {
-		Chains[i].fT = singleCost(i, Chains, ins);
+		Chains[i].fT = singleCost(Chains[i], ins);
 		session_set[Chains[i].node - 41].push_back(i + offset);
 		session_num[Chains[i].node - 41]++;    // 指向下一个空位
 	}
 	else {
-		Chains[i].fT = singleCost(i, Chains, 0);
+		Chains[i].fT = singleCost(Chains[i], 0);
 	}
 }
 
@@ -300,7 +303,7 @@ void init() {
 } 
 
 
-void update(int i, struct CFC Chains[], int ins, float update_cost) {
+void update(int i, vector<CFC>& Chains, int ins, float update_cost) {
 	// cout << "Updating..." << endl;
 //	printUsage();
 //	cout << "Path changes: " << endl;
@@ -338,13 +341,13 @@ void update(int i, struct CFC Chains[], int ins, float update_cost) {
 //	printCost();
 }
 
-void resetSession(struct CFC Chains[], int i) {
+void resetSession(vector<CFC>& Chains, int i) {
 	Chains[i].ins = 0;
 	Chains[i].update[0].uphy = -1;    // 第几个物理特征 
 	Chains[i].update[0].uphy = -1;
 	Chains[i].update[0].unode = -1;
 
-	Chains[i].fT = singleCost(i, Chains, 0);
+	Chains[i].fT = singleCost(Chains[i], 0);
 	memset(Chains[i].update[0].upath, 0, MAX_PATH_LENGTH * 4);
 
 	update(i, Chains, 0, T);
@@ -452,36 +455,6 @@ void classifyByLoad() {
 	cout << endl << "Classify process done." << endl;
 }
 
-/*
-void classify() {
-//	cout << "classify" << endl;
-
-	int lowC = 1000, highC = 0;
-	for(int i = 0; i < NUM_OF_ALLOCATED_CHAINS; ++i) {
-		lowC = lowC >= Allocated_Chains[i].fT? Allocated_Chains[i].fT: lowC;
-		highC = highC <= Allocated_Chains[i].fT? Allocated_Chains[i].fT: highC;
-	}
-	int count = 0;
-	for(int i = 0; i < NUM_OF_ALLOCATED_CHAINS; ++i) {
-//		double Pc = pow(Allocated_Chains[i].cost/sumC, 1.0/(double)NUM_OF_ALLOCATED_CHAINS);
-//		double Pc = Allocated_Chains[i].cost/sumC;
-		double Pc = Allocated_Chains[i].fT;
-		int pr = rand()%(highC - lowC) + lowC;
-
-		if(pr - Pc < 0) {
-			realc[count++] = i;
-		}
-//		realc[count++] = i;  // 全加进来试试 
-	}
-	num_of_realc = count;
-	cout << "Allocated chains chosen:" << endl;
-	for(int i = 0; realc[i] >= 0; ++i) {
-		cout << realc[i] << " ";
-	}
-}
-*/
-
-
 void action() { 
 	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
 		int type = Input_Chains[i].service_type;    // 五种服务链中的哪一种
@@ -502,7 +475,7 @@ void action() {
 			}
 			if(Input_Chains[i].update[ins].succ != false) {
 //				cout << "Calculating input chain " << i << " 's " << ins << " implementation cost..." << endl;
-				Input_Chains[i].update[ins].uT = singleCost(i, Input_Chains, ins);
+				Input_Chains[i].update[ins].uT = singleCost(Input_Chains[i], ins);
 			}
 		}
 	}
@@ -530,7 +503,7 @@ void action() {
 			}
 			if(Allocated_Chains[c].update[ins].succ != false) {
 //				cout << "Calculating allocated chain " << c << " 's " << ins << " implementation cost..." << endl;
-				Allocated_Chains[c].update[ins].uT = singleCost(c, Allocated_Chains, ins);
+				Allocated_Chains[c].update[ins].uT = singleCost(Allocated_Chains[c], ins);
 			}
 		}	
 	}
@@ -637,7 +610,7 @@ int main() {
 	if (NUM_OF_ALLOCATED_CHAINS > 10) {
 		classifyByLoad();
 	}
-	
+   
 	// printChoice();
 	// printUsage();
 	printSession(session_num, session_set);
@@ -646,7 +619,7 @@ int main() {
 	// 将所有待参与服务链的先选一种初始配置 
 	init();
 //	cout << "Init over!" << endl;
-
+	
 	// printRS();
 	// printChoice();
 	// printSession(session_num, session_set);
@@ -680,7 +653,7 @@ int main() {
 	printCost(); 
 	// printBW();
 	printRS();
-	
-	return 0; 	
+		
+	return 0; 
 
 }

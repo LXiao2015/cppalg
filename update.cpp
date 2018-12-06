@@ -69,7 +69,7 @@ void updateTraffic(int path[], int upath[], double demand, int phy, int uphy) {
 	}
 }
 
-bool checkCapacity(struct CFC Chains[], int i, int ins) {
+bool checkCapacity(vector<CFC>& Chains, int i, int ins) {
 	bool flag = false;
 	int node = Chains[i].node, unode = Chains[i].update[ins].unode;
 	int phy = Chains[i].phy, uphy = Chains[i].update[ins].uphy;
@@ -105,7 +105,7 @@ bool checkCapacity(struct CFC Chains[], int i, int ins) {
 	return flag;
 }
 
-void updateCapacity(struct CFC Chains[], int i, int ins) {
+void updateCapacity(vector<CFC>& Chains, int i, int ins) {
 	int tmp;
 	int node = Chains[i].node, unode = Chains[i].update[ins].unode;
 	int phy = Chains[i].phy, uphy = Chains[i].update[ins].uphy;
