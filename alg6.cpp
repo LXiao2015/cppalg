@@ -632,7 +632,7 @@ int main() {
 	// ²ßÂÔ¸üĞÂ 
 	for(int times = 0; times < 300; ++times) {
 //		printRS();
-		printCost();
+		// printCost();
 		if((time(NULL) - timer) >= 10) {
 			printf("\nRuntime: %ld ms\n", time(NULL) - start);
 			cout << "times: " << times << endl;

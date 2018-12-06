@@ -302,6 +302,88 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	infile.close();
 }
 
+void get_policy(int session_num[], vector<vector<int>>& session_set) {
+	string s;
+	ifstream infile;
+	int c = 0;
+	
+	// 读取原先服务链的 src sink type demand
+	infile.open(outdir + "policy.txt"); 
+	
+	while (getline(infile, s)) { 
+		if (s == "") {
+			break;
+		}
+		CFC oldChain;
+		
+		char* ss = new char[s.length() + 1];
+		strcpy(ss, s.c_str());
+		
+		char* ptr = strtok(ss, " ");
+		
+		oldChain.src = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+	    oldChain.sink = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+	    oldChain.service_type = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+	    oldChain.demand = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+		oldChain.ins = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+		oldChain.update[oldChain.ins].uphy = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+		oldChain.update[oldChain.ins].unode = atoi(ptr);
+		ptr = strtok(NULL, " ");
+		
+		cout << c << endl;
+
+		int pi = 0;
+		while (ptr != nullptr) {
+			oldChain.update[oldChain.ins].upath[pi] = atoi(ptr);
+			ptr = strtok(NULL, " ");
+		}
+		
+		printChainInfo(oldChain);
+		
+		session_set[oldChain.update[oldChain.ins].unode - 41].push_back(c);
+		session_num[oldChain.update[oldChain.ins].unode - 41]++;    // 指向下一个空位
+		
+		Allocated_Chains.push_back(std::move(oldChain));    // 右值引用
+		
+		// cout << "---" << endl;
+		// cout << Allocated_Chains[c].update[Allocated_Chains[c].ins].uphy << endl;
+		updateCapacity(Allocated_Chains, c, Allocated_Chains[c].ins);    // 必须在下一句之前 
+		Allocated_Chains[c].node = Allocated_Chains[c].update[Allocated_Chains[c].ins].unode;
+		
+		// cout << "composite " << c << " end" << endl;
+		
+		// cout << "------" << endl;
+		// 更新资源和链链路 
+	    // cout << "A init - " << c << endl; 
+		updateTraffic(Allocated_Chains[c].path, Allocated_Chains[c].update[Allocated_Chains[c].ins].upath, Allocated_Chains[c].demand, -1, Allocated_Chains[c].update[Allocated_Chains[c].ins].uphy);
+	    Allocated_Chains[c].phy = Allocated_Chains[c].update[Allocated_Chains[c].ins].uphy; 
+		memcpy(Allocated_Chains[c].path, Allocated_Chains[c].update[Allocated_Chains[c].ins].upath, 4 * MAX_PATH_LENGTH);
+	    memcpy(Allocated_Chains[c].ini_path, Allocated_Chains[c].path, 4 * MAX_PATH_LENGTH);
+	    // cout << "---------" << endl;
+	    
+		Allocated_Chains[c].fT = Allocated_Chains[c].update[Allocated_Chains[c].ins].uT = singleCost(Allocated_Chains[c], Allocated_Chains[c].ins);    // 把这里换一个评估函数 
+		// cout << "------------" << endl;
+		
+		cout << c << endl;
+		
+		c++;
+		
+		delete[] ss;
+	}
+}
+
 /*
 void cmd_input() {
 	cout << "Please input the source node, destination node, type, demand in order ";
@@ -324,18 +406,11 @@ void cmd_input() {
 		
 		Input_Chains.push_back(std::move(newChain));
 		cout << newChain.src << " " << newChain.sink << " " << newChain.service_type << " " << newChain.demand << endl;
-	    
 	}
 }
 */
 
 void read(int session_num[], vector<vector<int>>& session_set) {
-	
-	// memset(session_num, 0, NUM_OF_NFNODES);
-
-	// for (int i = 0; i < NUM_OF_NFNODES; ++i) {
-		// session_set.push_back(vector<int>());
-	// }
 	
 	// 服务链类型对应的实现方法 
 	memcpy(chain_types[0], Firewall, sizeof(Firewall));
@@ -367,8 +442,16 @@ void read(int session_num[], vector<vector<int>>& session_set) {
 
 	memset(node_vnf_demand, 0.0, sizeof(node_vnf_demand));
 	
-	allocated_chains(session_num, session_set);
-//	allocated_paths();
+	string policy = outdir + "policy.txt";
+	bool hasNewPolicy = access(policy.c_str(), F_OK);
+	if (hasNewPolicy) {
+		cout << "Read chains from matrix." << endl;
+		allocated_chains(session_num, session_set);
+	}
+	else {
+		cout << "Read chains from policy." << endl;
+		get_policy(session_num, session_set);
+	}
 	
 	input_chains();
 }

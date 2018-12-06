@@ -8,7 +8,7 @@ void storePolicy() {
 	ofstream Outfile;   //声明一个 ofstream 对象
     Outfile.open("/home/ubuntu/cppalg/output/policy.txt");
 	for(CFC c: Allocated_Chains) {
-        Outfile << "<" << c.src << " ," << c.sink << " ," << c.service_type << " ," << c.demand << ">  ";
+        Outfile << c.src << " " << c.sink << " " << c.service_type << " " << c.demand << "  ";
 		Outfile << c.ins << " " << c.phy << " " << c.node << "  ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			if (c.path[step] > 0) {
@@ -129,4 +129,45 @@ void printFeature() {
 		}
 		cout<<endl;
 	}
+}
+
+void printChainInfo(CFC& chain) {
+/*
+struct Update {
+	int uphy = -1;
+	int unode = 0;
+	int upath[MAX_PATH_LENGTH] = {0};
+	bool succ = false;
+	double uT;
+	double cff;
+	double cu;
+};
+
+struct CFC {
+	int src;
+	int sink;
+	int service_type;
+	int ins = 0;
+	int phy = -1;    // 第几个物理特征 
+	int node = 0;
+//	int ini_node = 0;
+	double demand;    // 暂时固定
+	int ini_path[MAX_PATH_LENGTH] = {0};
+	int path[MAX_PATH_LENGTH] = {0};    // 最长会有 14 个点
+	
+	struct Update update[3]; 
+//	int update_ins = 0;
+//	int update_phy = -1;
+//	int update_node = 0;
+//	int update_path[MAX_PATH_LENGTH] = {0};
+	double fT;
+	double cff;
+	double cu;
+}; 
+*/
+
+	cout << "----+----+----+----+----+----+----+----" << endl;
+	cout << chain.src << " -> " << chain.sink << "  " << chain.demand << " MB" << endl;
+	cout << "service type\t" << "SFP ins\t" << "physical feature\t" << "nfnode" << endl;
+	cout << chain.service_type << "\t" << chain.ins << "\t" << chain.phy << "\t" << chain.node << endl;
 }

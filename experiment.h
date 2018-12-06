@@ -6,6 +6,7 @@
 
 using namespace std;
 extern string dir;
+extern string outdir;
 
 extern double multiplier;
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <fstream>
 #include <string>
+#include <unistd.h>
+#include <fcntl.h>
 #include "cost.h"
 #include "update.h"
 
