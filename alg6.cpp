@@ -290,10 +290,9 @@ void initPerChain(vector<CFC>& Chains, int i, int offset) {
 void init() {
 	cout << "Start initing process..." << endl;
 	// new chains
-	for (int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {	
+	for (int i = 0; static_cast<unsigned long>(i) < Input_Chains.size(); ++i) {	
 		initPerChain(Input_Chains, i, 45);
 	}
-
 	// old chains to be reallocate
 	for (int i = 0; static_cast<unsigned long>(i) < realc.size(); ++i) {
 		initPerChain(Allocated_Chains, realc[i], 0);
@@ -348,7 +347,7 @@ void resetSession(vector<CFC>& Chains, int i) {
 
 	Chains[i].fT = singleCost(Chains[i], 0);
 	memset(Chains[i].update[0].upath, 0, MAX_PATH_LENGTH * 4);
-
+	
 	update(i, Chains, 0, T);
 }
 
@@ -455,7 +454,8 @@ void classifyByLoad() {
 }
 
 void action() { 
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+
+	for(int i = 0; static_cast<unsigned long>(i) < Input_Chains.size(); ++i) {
 		int type = Input_Chains[i].service_type;    // 五种服务链中的哪一种
 //		cout << "i = " << i << endl;
 		for(int ins = 0; ins < num_of_ins[type]; ++ins) {
@@ -478,7 +478,7 @@ void action() {
 			}
 		}
 	}
-	
+
 	for(int c: realc) {
 		if(c < 0) {
 			break;
@@ -514,16 +514,16 @@ void action() {
 	float update_cost = 0.0;
 	double b = 7.0, t = 3.0;
 
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+	for(int i = 0; static_cast<unsigned long>(i) < Input_Chains.size(); ++i) {
 		int type = Input_Chains[i].service_type;
 		for(int ins = 0; ins < num_of_ins[type]; ++ins) {
 			if(Input_Chains[i].update[ins].succ == false) {
-//				cout << i << " do not participate int update procedure" << endl;
+				// cout << i << " do not participate int update procedure" << endl;
 				continue;
 			}
 //			cout << newCost(Input_Chains, i, ins) << " + " << Input_Chains[i].update[ins].uT << " - " << Input_Chains[i].fT << endl;
 			float new_cost = newCost(Input_Chains, i, ins) + Input_Chains[i].update[ins].uT - Input_Chains[i].fT;
-//			cout << i << "!!!!!" << new_cost << " " << T << endl;
+			// cout << i << "!!!!!" << new_cost << " " << T << endl;
 //			Qf = exp(t - b*(Input_Chains[i].cost - Input_Chains[i].update[ins].ucost))/num_of_ins[type];
 			Qf = exp(t - b*(1/new_cost - 1/T));    // 这里的分母应该是可选的 ins 
 //			Qf = T - new_cost;
@@ -531,7 +531,7 @@ void action() {
 //			cout << Qf << endl;	
 //			if(Input_Chains[i].update[ins].ucost != Input_Chains[i].cost && min_perform > Qf) {
 			if(min_perform > Qf) {
-	//			cout << "I - " << i << " 's cost reduced: " << " " << Input_Chains[i].cost << " " << Input_Chains[i].update_cost << endl;
+				// cout << "I - " << i << " 's cost reduced: " << " " << Input_Chains[i].fT << " " << Input_Chains[i].update[ins].uT << endl;
 				min_perform = Qf;
 				update_chain = i;
 				update_ins = ins; 
@@ -539,6 +539,7 @@ void action() {
 			}
 		} 
 	}
+
 	for(int c: realc) {
 		if(c < 0) {
 			break;
@@ -562,32 +563,26 @@ void action() {
 			if(min_perform > Qf) {
 	//			cout << "A - " << c << " 's cost reduced: " << " " << Allocated_Chains[c].cost << " " << Allocated_Chains[c].update_cost << endl;
 				min_perform = Qf;
-				update_chain = c + NUM_OF_INPUT_CHAINS;
+				update_chain = c + Input_Chains.size();
 				update_ins = ins;
 				update_cost = new_cost;
 			}
 		}
 	}
-	
-//	cout << "T before updating —— " << T << endl;
+
 //	printUsage();
-//	cout << endl;
-	if(update_chain >= NUM_OF_INPUT_CHAINS) {
-//		cout << "update A  " << update_chain - NUM_OF_INPUT_CHAINS << " " << update_ins << endl;
-//		cout << Allocated_Chains[update_chain - NUM_OF_INPUT_CHAINS].node << " " << Allocated_Chains[update_chain - NUM_OF_INPUT_CHAINS].update[update_ins].unode << endl;
-		update(update_chain - NUM_OF_INPUT_CHAINS, Allocated_Chains, update_ins, update_cost);
-//		cout << "Done!" << endl;
-	}
-	else if(update_chain >= 0){
-//		cout << "update I  " << update_chain << " " << update_ins << endl;
-//		cout << Input_Chains[update_chain].node << " " << Input_Chains[update_chain].update[update_ins].unode << endl;
-		update(update_chain, Input_Chains, update_ins, update_cost);
-//		cout << "Done!" << endl;
-	}
-	else {
+
+	if (update_chain < 0) {
 //		cout << "Didn't update this round." << T << endl;
 		return;
 	}
+	else if(static_cast<unsigned long>(update_chain) >= Input_Chains.size()) {
+		update(update_chain - Input_Chains.size(), Allocated_Chains, update_ins, update_cost);
+
+	}
+	else if(update_chain >= 0){
+		update(update_chain, Input_Chains, update_ins, update_cost);
+    }
 }
 
 int main() {
@@ -595,18 +590,10 @@ int main() {
 	
     time_t timer = time(NULL);
     time_t start = timer;
-	
-	// printRS();
-	// printUsage();
-	// printSession(session_num, session_set);
-	// printBW();
-	
-	// printChoice();
-	// printCost();
 
 
 	// 选择参与此次调整的已分配服务链 
-	if (NUM_OF_ALLOCATED_CHAINS > 10) {
+	if (Allocated_Chains.size() > 3) {
 		classifyByLoad();
 	}
    
@@ -617,23 +604,15 @@ int main() {
 	
 	// 将所有待参与服务链的先选一种初始配置 
 	init();
-//	cout << "Init over!" << endl;
-	
-	// printRS();
-	// printChoice();
-	// printSession(session_num, session_set);
-	// printBW();
-	// printUsage();
 	
 	totalCost();
 	// printCost();
-
 
 	// 策略更新 
 	for(int times = 0; times < 300; ++times) {
 //		printRS();
 		// printCost();
-		if((time(NULL) - timer) >= 10) {
+		if((time(NULL) - timer) >= 5) {
 			printf("\nRuntime: %ld ms\n", time(NULL) - start);
 			cout << "times: " << times << endl;
 			// printCost();
@@ -655,6 +634,9 @@ int main() {
 	
 	// 合并 Input_Chains 到 Allocated_Chains, 并清空前者
 	Allocated_Chains.insert(Allocated_Chains.end(), Input_Chains.begin(), Input_Chains.end());
+	for (auto c: Allocated_Chains) {
+		printChainInfo(c);
+	}
 	storePolicy();
 	
 	return 0; 

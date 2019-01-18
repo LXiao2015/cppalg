@@ -88,13 +88,13 @@ void totalCost() {
 	CI = 0.0;    // cost for hardware and instantiating
 
 	// add (cff + cu)
-	for (int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+	for (int i = 0; static_cast<unsigned long>(i) < Input_Chains.size(); ++i) {
 		CF += Input_Chains[i].cff;
 		// cout << Input_Chains[i].cu << endl;
 		CU += Input_Chains[i].cu;
 	}
 	// cout << "Cost for Input Chains: " << CF + CU << endl;
-	for (int c = 0; static_cast<unsigned long>(c) < NUM_OF_ALLOCATED_CHAINS; ++c) {
+	for (int c = 0; static_cast<unsigned long>(c) < Allocated_Chains.size(); ++c) {
 		CF += Allocated_Chains[c].cff;
 		// cout << Allocated_Chains[c].cu << endl;
 		CU += Allocated_Chains[c].cu;

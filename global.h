@@ -37,6 +37,7 @@ extern bool StrictFullDPI[3][NUM_OF_FEATURES];
 
 extern bool chain_types[NUM_OF_CHAIN_TYPES][3][NUM_OF_FEATURES];
 
+extern int tos[NUM_OF_CHAIN_TYPES][3];
 
 extern int num_of_ins[NUM_OF_CHAIN_TYPES];
 

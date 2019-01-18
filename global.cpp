@@ -53,6 +53,7 @@ bool StrictFullDPI[3][NUM_OF_FEATURES] = {
 
 bool chain_types[NUM_OF_CHAIN_TYPES][3][NUM_OF_FEATURES] = {0};
 
+int tos[NUM_OF_CHAIN_TYPES] = {16, 20, 28, 38, 40};
 
 int num_of_ins[NUM_OF_CHAIN_TYPES] = {3, 2, 2, 3, 2};
 

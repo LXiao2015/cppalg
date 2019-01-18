@@ -264,6 +264,7 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
     infile.open(dir + "input_chains.txt"); 
 	int c = 0; 
     while(getline(infile, s)) {  
+
     	bool temp = false;
     	int pos = 0, data = 0;
     	int d[4] = {0};
@@ -281,7 +282,7 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 	            temp = false;     // 标志位复位  
 	        }  
 	    } 
-		cout << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << endl;
+		// cout << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << endl;
 		CFC newChain;
 		
 	    newChain.src = d[0];
@@ -296,7 +297,7 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 		newChain.cu = newChain.update[0].cu;
 		
 		Input_Chains.push_back(std::move(newChain));    // 右值引用
-	    // cout<<Input_Chains[c].src<<" "<<Input_Chains[c].sink<<" "<<Input_Chains[c].service_type<<" "<<Input_Chains[c].demand<<endl;
+	    // cout << Input_Chains[c].src << " " << Input_Chains[c].sink << " " << Input_Chains[c].service_type << " " << Input_Chains[c].demand << endl;
 	    c++;
     }  
 	infile.close();
@@ -308,7 +309,7 @@ void get_policy(int session_num[], vector<vector<int>>& session_set) {
 	int c = 0;
 	
 	// 读取原先服务链的 src sink type demand
-	infile.open(outdir + "policy.txt"); 
+	infile.open(outdir + "policy.log"); 
 	
 	while (getline(infile, s)) { 
 		if (s == "") {
@@ -341,17 +342,16 @@ void get_policy(int session_num[], vector<vector<int>>& session_set) {
 		
 		oldChain.update[oldChain.ins].unode = atoi(ptr);
 		ptr = strtok(NULL, " ");
-		
-		cout << c << endl;
 
 		int pi = 0;
 		while (ptr != nullptr) {
-			oldChain.update[oldChain.ins].upath[pi] = atoi(ptr);
+			oldChain.update[oldChain.ins].upath[pi++] = atoi(ptr);
 			ptr = strtok(NULL, " ");
 		}
 		
-		printChainInfo(oldChain);
-		
+		// cout << oldChain.src << " " << oldChain.sink << " " << oldChain.service_type << " ";
+		// cout << oldChain.demand << " " << oldChain.ins << " " << oldChain.update[oldChain.ins].uphy << " ";
+		// cout << oldChain.update[oldChain.ins].unode << " " << oldChain.update[oldChain.ins].upath[1] << endl;
 		session_set[oldChain.update[oldChain.ins].unode - 41].push_back(c);
 		session_num[oldChain.update[oldChain.ins].unode - 41]++;    // 指向下一个空位
 		
@@ -376,7 +376,7 @@ void get_policy(int session_num[], vector<vector<int>>& session_set) {
 		Allocated_Chains[c].fT = Allocated_Chains[c].update[Allocated_Chains[c].ins].uT = singleCost(Allocated_Chains[c], Allocated_Chains[c].ins);    // 把这里换一个评估函数 
 		// cout << "------------" << endl;
 		
-		cout << c << endl;
+		// printChainInfo(Allocated_Chains[c]);
 		
 		c++;
 		
@@ -442,16 +442,13 @@ void read(int session_num[], vector<vector<int>>& session_set) {
 
 	memset(node_vnf_demand, 0.0, sizeof(node_vnf_demand));
 	
-	string policy = outdir + "policy.txt";
-	bool hasNewPolicy = access(policy.c_str(), F_OK);
-	if (hasNewPolicy) {
-		cout << "Read chains from matrix." << endl;
-		allocated_chains(session_num, session_set);
-	}
-	else {
+	string policy = outdir + "policy.log";
+	bool hasOldPolicy = access(policy.c_str(), F_OK);    // 如果指定的存取方式有效返回 0, 否则返回 -1
+	if (hasOldPolicy == 0) {
 		cout << "Read chains from policy." << endl;
 		get_policy(session_num, session_set);
 	}
 	
 	input_chains();
+	cout << "got new chians: " << Input_Chains.size() << endl;
 }

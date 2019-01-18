@@ -6,7 +6,7 @@ using namespace std;
 
 void storePolicy() {
 	ofstream Outfile;   //声明一个 ofstream 对象
-    Outfile.open("/home/ubuntu/cppalg/output/policy.txt");
+    Outfile.open("/home/ubuntu/cppalg/output/policy.log");
 	for(CFC c: Allocated_Chains) {
         Outfile << c.src << " " << c.sink << " " << c.service_type << " " << c.demand << "  ";
 		Outfile << c.ins << " " << c.phy << " " << c.node << "  ";
@@ -24,12 +24,12 @@ void printChoice() {
     ofstream Outfile;   //声明一个 ofstream 对象
     Outfile.open("/home/ubuntu/cppalg/output/demandAndPath.txt");  //将OF与“study.txt”文件关联起来
 	for(CFC c: Input_Chains) {
-		// cout << "[ The " << i+1 << " th chain: ] " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
+		// cout << "[ The " << i+1 << " th new chain: ] " << Input_Chains[i].service_type << " " << Input_Chains[i].ins << endl;
 		// cout << "demand: " << Input_Chains[i].demand << endl;
 		// cout << "NF: " << Input_Chains[i].node << endl;
 		// cout << "single COST: " << Input_Chains[i].fT << endl;
 
-        Outfile << c.demand << " ";
+        Outfile << tos[c.service_type][c.ins] << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			// cout << Input_Chains[i].path[step] << " ";
 			if (c.path[step] > 0) {
@@ -41,7 +41,7 @@ void printChoice() {
 	}
 	cout<<endl;
 	for(CFC c: Allocated_Chains) {
-		// cout << "[ The " << c+1 << " th chain: ] " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
+		// cout << "[ The " << c+1 << " th existed chain: ] " << Allocated_Chains[c].service_type << " " << Allocated_Chains[c].ins << endl;
 		// cout << "demand: " << Allocated_Chains[c].demand << endl;
 		// cout << "NF node: " << Allocated_Chains[c].node << endl;
 		// cout << "single COST: " << Allocated_Chains[c].fT << endl;
@@ -115,14 +115,14 @@ void printCost() {
 } 
 
 void printFeature() {
-	for(int i = 0; i < NUM_OF_INPUT_CHAINS; ++i) {
+	for(int i = 0; static_cast<unsigned long>(i) < Input_Chains.size(); ++i) {
 		int ins = Input_Chains[i].ins, type = Input_Chains[i].service_type;
 		for(int j = 0; j < NUM_OF_FEATURES; ++j) {
 			cout<<chain_types[type][ins][j]<<" ";
 		}
 		cout<<endl;
 	}
-	for(int i = 0; i < NUM_OF_ALLOCATED_CHAINS; ++i) {
+	for(int i = 0; static_cast<unsigned long>(i) < Allocated_Chains.size(); ++i) {
 		int ins = Allocated_Chains[i].ins, type = Allocated_Chains[i].service_type;
 		for(int j = 0; j < NUM_OF_FEATURES; ++j) {
 			cout<<chain_types[type][ins][j]<<" ";
@@ -132,42 +132,24 @@ void printFeature() {
 }
 
 void printChainInfo(CFC& chain) {
-/*
-struct Update {
-	int uphy = -1;
-	int unode = 0;
-	int upath[MAX_PATH_LENGTH] = {0};
-	bool succ = false;
-	double uT;
-	double cff;
-	double cu;
-};
-
-struct CFC {
-	int src;
-	int sink;
-	int service_type;
-	int ins = 0;
-	int phy = -1;    // 第几个物理特征 
-	int node = 0;
-//	int ini_node = 0;
-	double demand;    // 暂时固定
-	int ini_path[MAX_PATH_LENGTH] = {0};
-	int path[MAX_PATH_LENGTH] = {0};    // 最长会有 14 个点
-	
-	struct Update update[3]; 
-//	int update_ins = 0;
-//	int update_phy = -1;
-//	int update_node = 0;
-//	int update_path[MAX_PATH_LENGTH] = {0};
-	double fT;
-	double cff;
-	double cu;
-}; 
-*/
-
-	cout << "----+----+----+----+----+----+----+----" << endl;
-	cout << chain.src << " -> " << chain.sink << "  " << chain.demand << " MB" << endl;
-	cout << "service type\t" << "SFP ins\t" << "physical feature\t" << "nfnode" << endl;
-	cout << chain.service_type << "\t" << chain.ins << "\t" << chain.phy << "\t" << chain.node << endl;
+	cout << "------+------+------+------+------+------+------+------+------" << endl;
+	cout << "host " << chain.src << " -> host " << chain.sink << "  " << chain.demand << " MB" << endl;
+	cout << "service_type\t" << "SFP\t" << "physical_feature\t" << "service_node" << endl;
+	cout << chain.service_type << "\t\t" << chain.ins << "\t" << chain.phy << "\t\t\t" << chain.node << endl;
+	cout << "Former  path: ";
+	for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
+		// cout << Allocated_Chains[c].path[step] << " ";
+		if (chain.ini_path[step] > 0) {
+			cout << chain.ini_path[step] << " ";
+		}
+	}
+	cout << endl;
+	cout << "Current path: ";
+	for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
+		// cout << Allocated_Chains[c].path[step] << " ";
+		if (chain.path[step] > 0) {
+			cout << chain.path[step] << " ";
+		}
+	}
+	cout << endl;
 }
