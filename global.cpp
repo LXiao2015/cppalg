@@ -311,7 +311,11 @@ double prop[NUM_OF_NF] = {0.9, 0.8, 0.7};
 
 int from[NUM_OF_PATH] = {0}, to[NUM_OF_PATH] = {0};
 
+vector<vector<string>> sfp(5, vector<string>(3));
 
+string sname[5] = {"Firewall", "StrictFirewall", "BasicDPI", "FullDPI", "StrictFullDPI"};
+
+string nname[5] = {"nf_name_41", "nf_name_42", "nf_name_43", "nf_name_44", "nf_name_45"};
 
 // 类型 实现方式 与对应的prop
 //0 0

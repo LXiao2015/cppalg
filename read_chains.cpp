@@ -451,4 +451,19 @@ void read(int session_num[], vector<vector<int>>& session_set) {
 	
 	input_chains();
 	cout << "got new chians: " << Input_Chains.size() << endl;
+
+        sfp[0][0] = "SFP1";
+        sfp[0][1] = "SFP2";
+        sfp[0][2] = "SFP3";
+        sfp[1][0] = "SFP1";
+        sfp[1][1] = "SFP3";
+        sfp[2][0] = "SFP1";
+        sfp[2][1] = "SFP4";
+        sfp[3][0] = "SFP1";
+        sfp[3][1] = "SFP4";
+        sfp[3][2] = "SFP5";
+        sfp[4][0] = "SFP1";
+        sfp[4][1] = "SFP5";
+
+
 }

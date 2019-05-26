@@ -1,7 +1,8 @@
 #include <iostream>
 #include "print.h"
 #include <fstream>
-
+#include <iomanip>
+#include <cstring>
 using namespace std;
 
 void storePolicy() {
@@ -29,7 +30,7 @@ void printChoice() {
 		// cout << "NF: " << Input_Chains[i].node << endl;
 		// cout << "single COST: " << Input_Chains[i].fT << endl;
 
-        Outfile << tos[c.service_type][c.ins] << " ";
+        Outfile << tos[c.service_type] << " ";
 		for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 			// cout << Input_Chains[i].path[step] << " ";
 			if (c.path[step] > 0) {
@@ -133,9 +134,19 @@ void printFeature() {
 
 void printChainInfo(CFC& chain) {
 	cout << "------+------+------+------+------+------+------+------+------" << endl;
-	cout << "host " << chain.src << " -> host " << chain.sink << "  " << chain.demand << " MB" << endl;
-	cout << "service_type\t" << "SFP\t" << "physical_feature\t" << "service_node" << endl;
-	cout << chain.service_type << "\t\t" << chain.ins << "\t" << chain.phy << "\t\t\t" << chain.node << endl;
+        char basic[48] = "host ";
+        strcat(basic, to_string(chain.src).c_str());
+        char t1[] = " -> host ";
+        strcat(basic, t1);
+        strcat(basic, to_string(chain.sink).c_str());
+        char t2[] = "  ";
+        strcat(basic, t2);
+        strcat(basic, to_string(int(chain.demand)).c_str());
+        char t3[] = " MB  ";
+        strcat(basic, t3);
+        strcat(basic, sname[chain.service_type].c_str());
+        cout << setw(48) << setiosflags(ios::left) << basic;
+	cout << sfp[chain.service_type][chain.ins] << "\t" << nname[chain.node - 41] << endl;
 	cout << "Former  path: ";
 	for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 		// cout << Allocated_Chains[c].path[step] << " ";
@@ -143,7 +154,7 @@ void printChainInfo(CFC& chain) {
 			cout << chain.ini_path[step] << " ";
 		}
 	}
-	cout << endl;
+	cout << "\t";
 	cout << "Current path: ";
 	for(int step = 0; step < MAX_PATH_LENGTH; ++step) {
 		// cout << Allocated_Chains[c].path[step] << " ";

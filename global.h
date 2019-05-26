@@ -37,7 +37,7 @@ extern bool StrictFullDPI[3][NUM_OF_FEATURES];
 
 extern bool chain_types[NUM_OF_CHAIN_TYPES][3][NUM_OF_FEATURES];
 
-extern int tos[NUM_OF_CHAIN_TYPES][3];
+extern int tos[NUM_OF_CHAIN_TYPES];
 
 extern int num_of_ins[NUM_OF_CHAIN_TYPES];
 
@@ -199,6 +199,10 @@ extern int from[NUM_OF_PATH], to[NUM_OF_PATH];
 //
 //4 0
 //4 1  0.7 
+
+extern vector<vector<string>> sfp;
+extern string sname[5];
+extern string nname[5];
 
 //f3  (0,2) (1,1)
 //f5  (2,1) (3,1)
