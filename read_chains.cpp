@@ -297,7 +297,7 @@ void input_chains() {    // 输入服务链参数(源、目、类型)
 		newChain.cu = newChain.update[0].cu;
 		
 		Input_Chains.push_back(std::move(newChain));    // 右值引用
-	    // cout << Input_Chains[c].src << " " << Input_Chains[c].sink << " " << Input_Chains[c].service_type << " " << Input_Chains[c].demand << endl;
+	    cout << Input_Chains[c].src << " " << Input_Chains[c].sink << " " << Input_Chains[c].service_type << " " << Input_Chains[c].demand << endl;
 	    c++;
     }  
 	infile.close();
@@ -448,7 +448,7 @@ void read(int session_num[], vector<vector<int>>& session_set) {
 		cout << "Read chains from policy." << endl;
 		get_policy(session_num, session_set);
 	}
-	
+        cout << "here" <<endl;	
 	input_chains();
 	cout << "got new chians: " << Input_Chains.size() << endl;
 

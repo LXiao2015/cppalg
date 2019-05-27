@@ -638,7 +638,7 @@ int main() {
 		printChainInfo(c);
 	}
 	storePolicy();
-	
+        printChoice();	
 	return 0; 
 
 }
